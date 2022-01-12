@@ -1,1 +1,1 @@
-# EMULADOR-NES
+# EMULADOR-NES feito em js.
