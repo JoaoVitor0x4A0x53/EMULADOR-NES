@@ -25,7 +25,7 @@ window.onload = function cpu(){
 	this.B = 0;
 	this.V = 0;
 	this.N = 0;
-	this.frequencia = // 0,001;
+	this.frequencia = 0,001;
 	cartucho();
 };
 function mapaMenoria(localMemoria){
@@ -261,11 +261,16 @@ function registradorStatus(referencia, ho, lo){
 	}
 }
 var cycles = [
-	2, 3, 4, 4, 4, 4, 6, 5
+	2, 3, 4, 4, 4, 4, 6, 5,
+	2, 3, 4, 4, 4, 4, 6, 5,
+	2, 5, 6, 6, 7,
 ];
 var opcode = {
-	'69': ADC_immediat, '65': ADC_zeropage, '75': ADC_zeropage_x, '6d': ADC_absoluto, '7d': ADC_absoluto_x, '79': ADC_absoluto_y, '61': ADC_indireto_x, '71': ADC_indireto_y // ✓
+	'69': ADC_immediat, '65': ADC_zeropage, '75': ADC_zeropage_x, '6d': ADC_absoluto, '7d': ADC_absoluto_x, '79': ADC_absoluto_y, '61': ADC_indireto_x, '71': ADC_indireto_y, // ✓
+	'29': AND_immediat, '25': AND_zeropage, '35': AND_zeropage_x, '2d': AND_absoluto, '3d': AND_absoluto_x, '39': AND_absoluto_y, '21': AND_indireto_x, '31': AND_indireto_y, // X
+	'0a': ASL_immediat, '06': ASL_zeropage, '16': ASL_zeropage_x, '0e': ASL_absoluto, '1e': ASL_absoluto_x, // X
 };
+// instruçoes ADC
 function ADC_immediat(){
 	registradorStatus(A + mapaMenoria(PC + 1), A, mapaMenoria(PC + 1));
 	A = (parseInt(A, 2) + parseInt(mapaMenoria(PC + 1), 2) >>> 0).toString(2);
@@ -329,4 +334,65 @@ function ADC_indireto_y(){
 	A = (parseInt(valor, 2) + parseInt(A, 2) >>> 0).toString(2);
 	window.alert(parseInt(A, 2) + ' ~ C ' + C + ' N ' + N + ' Z ' + Z + ' V ' + V);
 	return cycles[0x07];
+}
+// instruçoes AND
+function AND_immediat(){
+	return cycles[0x08];
+}
+function AND_zeropage(){
+	return cycles[0x09];
+}
+function AND_zeropage_x(){
+	return cycles[0x0a];
+}
+function AND_absoluto(){
+	return cycles[0x0b];
+}
+function AND_absoluto_x(){
+	return cycles[0x0c];
+}
+function AND_absoluto_y(){
+	return cycles[0x0d];
+}
+function AND_indireto_x(){
+	return cycles[0x0e];
+}
+function AND_indireto_y(){
+	return cycles[0x0f];
+}
+// instruçoes ASL
+function ASL_immediat(){
+	var valor = mapaMenoria(PC + 1);
+	valor = valor.slice(1, 8) + '0';
+	registradorStatus(valor);
+	A = valor;
+	return cycles[0x10];
+}
+function ASL_zeropage(){
+	var valor = mapaMenoria(PC + 2);
+	valor = valor.slice(1, 8) + '0';
+	registradorStatus(valor);
+	A = valor;
+	return cycles[0x11];
+}
+function ASL_zeropage_x(){
+	var valor = '00000000' + mapaMenoria(PC + 2);
+	valor = valor.slice(9, 16) + X + '0';
+	registradorStatus(valor);
+	A = valor;
+	return cycles[0x12];
+}
+function ASL_absoluto(){
+	var valor = littleEndian(mapaMenoria(PC + 1) + mapaMenoria(PC + 2), false);
+	valor = valor.slice(1, 16) + '0';
+	registradorStatus(valor);
+	A = valor;
+	return cycles[0x13];
+}
+function ASL_absoluto_x(){
+	var valor = littleEndian(mapaMenoria(PC + 1) + mapaMenoria(PC + 2), false);
+	valor = valor.slice(1, 16) + X + '0';
+	registradorStatus(valor);
+	A = valor;
+	return cycles[0x14];
 }
